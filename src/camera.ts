@@ -51,6 +51,8 @@ export const selectCameraTransform = (s: CameraState) =>
 export const selectZoomPercent = (s: CameraState) =>
     Math.round(s.zoom * 100)
 
+export const selectZoom = (s: CameraState) => s.zoom
+
 // Store — thin action wrappers
 
 const INITIAL_VIEWPORT: Viewport = { width: 0, height: 0 }

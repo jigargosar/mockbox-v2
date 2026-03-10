@@ -1,7 +1,11 @@
 import type { WireframeElement } from './elements'
 import { assertNever } from './utils'
 
-export function WireframeElementView(props: { readonly element: WireframeElement }) {
+const SELECTION_COLOR = '#4488ff'
+
+export function WireframeElementView(props: {
+    readonly element: WireframeElement
+}) {
     const { element } = props
 
     switch (element.type) {
@@ -73,4 +77,22 @@ export function WireframeElementView(props: { readonly element: WireframeElement
         default:
             return assertNever(element)
     }
+}
+
+export function SelectionOutline(props: { readonly element: WireframeElement }) {
+    const { element } = props
+    const pad = 2
+    return (
+        <rect
+            x={element.x - pad}
+            y={element.y - pad}
+            width={element.width + pad * 2}
+            height={element.height + pad * 2}
+            rx={4}
+            fill="none"
+            stroke={SELECTION_COLOR}
+            strokeWidth={1.5}
+            strokeDasharray="4 2"
+        />
+    )
 }

@@ -1,20 +1,28 @@
 import { useEffect, useRef } from 'react'
-import { selectCameraTransform, useCameraStore } from './camera'
+import { selectCameraTransform, selectZoom, useCameraStore } from './camera'
 import { useElementsStore } from './elements'
-import { WireframeElementView } from './WireframeElement'
+import { SelectionOutline, WireframeElementView } from './WireframeElement'
 
 const GRID_SIZE = 24
 const DOT_RADIUS = 0.8
 const DOT_COLOR = 'rgba(130, 160, 210, 0.06)'
 
+type InteractionMode =
+    | { readonly type: 'idle' }
+    | { readonly type: 'panning' }
+    | { readonly type: 'moving'; readonly elementId: string }
+
+const IDLE: InteractionMode = { type: 'idle' }
+
 export function Workspace() {
     const svgRef = useRef<SVGSVGElement>(null)
-    const isPanning = useRef(false)
+    const mode = useRef<InteractionMode>(IDLE)
     const isSpaceHeld = useRef(false)
 
     const { pan, zoomAt, setViewport } = useCameraStore()
     const cameraTransform = useCameraStore(selectCameraTransform)
-    const elements = useElementsStore((s) => s.elements)
+    const zoom = useCameraStore(selectZoom)
+    const { elements, selectedId, select, deselect, moveElement } = useElementsStore()
 
     // Track viewport dimensions on mount + resize
     useEffect(() => {
@@ -67,32 +75,50 @@ export function Workspace() {
         }
     }, [])
 
-    const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-        // TODO: once objects exist, left-click on empty canvas only
+    // Canvas-level pointerdown — deselect + pan (only fires if no element caught it)
+    const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
         const shouldPan = e.button === 1 || e.button === 0
         if (!shouldPan) return
 
         e.preventDefault()
-        isPanning.current = true
+        deselect()
+        mode.current = { type: 'panning' }
+        svgRef.current?.setPointerCapture(e.pointerId)
+    }
+
+    // Element-level pointerdown — select + start move
+    const handleElementPointerDown = (e: React.PointerEvent, elementId: string) => {
+        if (e.button !== 0) return
+
+        e.preventDefault()
+        e.stopPropagation()
+        select(elementId)
+        mode.current = { type: 'moving', elementId }
         svgRef.current?.setPointerCapture(e.pointerId)
     }
 
     const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-        if (!isPanning.current) return
-        pan(e.movementX, e.movementY)
+        switch (mode.current.type) {
+            case 'idle':
+                return
+            case 'panning':
+                pan(e.movementX, e.movementY)
+                return
+            case 'moving':
+                moveElement(mode.current.elementId, e.movementX / zoom, e.movementY / zoom)
+                return
+        }
     }
 
-    const handlePointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
-        const wasPan = e.button === 1 || (e.button === 0 && isPanning.current)
-        if (!wasPan) return
-        isPanning.current = false
+    const handlePointerUp = () => {
+        mode.current = IDLE
     }
 
     return (
         <svg
             ref={svgRef}
             className="h-full w-full"
-            onPointerDown={handlePointerDown}
+            onPointerDown={handleCanvasPointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
         >
@@ -129,10 +155,20 @@ export function Workspace() {
                 <line x1={0} y1={-40} x2={0} y2={40} stroke="#2a2a3a" strokeWidth={0.5} />
 
                 {elements.map((element) => (
-                    <g key={element.id} filter="url(#drop-shadow)">
+                    <g
+                        key={element.id}
+                        filter="url(#drop-shadow)"
+                        onPointerDown={(e) => handleElementPointerDown(e, element.id)}
+                        style={{ cursor: 'move' }}
+                    >
                         <WireframeElementView element={element} />
                     </g>
                 ))}
+
+                {selectedId &&
+                    elements
+                        .filter((el) => el.id === selectedId)
+                        .map((el) => <SelectionOutline key={`sel-${el.id}`} element={el} />)}
             </g>
         </svg>
     )

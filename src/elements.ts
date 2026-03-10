@@ -19,10 +19,28 @@ export type ContainerElement = ElementBase & { readonly type: 'container'; reado
 
 export type WireframeElement = RectangleElement | TextElement | LineElement | ContainerElement
 
+// Pure state transitions
+
+function applyMove(
+    elements: ReadonlyArray<WireframeElement>,
+    id: ElementId,
+    dx: number,
+    dy: number,
+): ReadonlyArray<WireframeElement> {
+    return elements.map((el) => (el.id === id ? { ...el, x: el.x + dx, y: el.y + dy } : el))
+}
+
 // Store
 
 type ElementsState = {
     readonly elements: ReadonlyArray<WireframeElement>
+    readonly selectedId: ElementId | null
+}
+
+type ElementsActions = {
+    readonly select: (id: ElementId) => void
+    readonly deselect: () => void
+    readonly moveElement: (id: ElementId, dx: number, dy: number) => void
 }
 
 const SEED_ELEMENTS: ReadonlyArray<WireframeElement> = [
@@ -41,6 +59,11 @@ const SEED_ELEMENTS: ReadonlyArray<WireframeElement> = [
     { id: '13', type: 'container', x: 96, y: 384, width: 624, height: 48, label: 'Navigation Bar' },
 ]
 
-export const useElementsStore = create<ElementsState>(() => ({
+export const useElementsStore = create<ElementsState & ElementsActions>((set) => ({
     elements: SEED_ELEMENTS,
+    selectedId: null,
+
+    select: (id) => set({ selectedId: id }),
+    deselect: () => set({ selectedId: null }),
+    moveElement: (id, dx, dy) => set((s) => ({ elements: applyMove(s.elements, id, dx, dy) })),
 }))
