@@ -42,8 +42,8 @@ export function WireframeElementView(props: {
 }
 
 const RECT_OPTIONS = {
-    roughness: 0.5,
-    bowing: 0.6,
+    roughness: 1,
+    bowing: 1,
     strokeWidth: 1.5,
     stroke: '#b0b0c0',
     fill: '#12121a',
@@ -51,8 +51,8 @@ const RECT_OPTIONS = {
 }
 
 const CONTAINER_OPTIONS = {
-    roughness: 0.5,
-    bowing: 0.6,
+    roughness: 1,
+    bowing: 1,
     strokeWidth: 1.2,
     stroke: '#606078',
     fill: '#0e0e16',
@@ -60,8 +60,8 @@ const CONTAINER_OPTIONS = {
 }
 
 const LINE_OPTIONS = {
-    roughness: 0.4,
-    bowing: 0.3,
+    roughness: 1,
+    bowing: 1,
     strokeWidth: 1.2,
     stroke: '#606078',
 }
