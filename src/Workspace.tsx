@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { selectCameraTransform, useCameraStore } from './camera'
+import { useElementsStore } from './elements'
+import { WireframeElementView } from './WireframeElement'
 
 const GRID_SIZE = 24
 const DOT_RADIUS = 0.8
@@ -12,6 +14,7 @@ export function Workspace() {
 
     const { pan, zoomAt, setViewport } = useCameraStore()
     const cameraTransform = useCameraStore(selectCameraTransform)
+    const elements = useElementsStore((s) => s.elements)
 
     // Track viewport dimensions on mount + resize
     useEffect(() => {
@@ -125,31 +128,11 @@ export function Workspace() {
                 <line x1={-40} y1={0} x2={40} y2={0} stroke="#2a2a3a" strokeWidth={0.5} />
                 <line x1={0} y1={-40} x2={0} y2={40} stroke="#2a2a3a" strokeWidth={0.5} />
 
-                {/* placeholder wireframe elements for testing */}
-                <g filter="url(#drop-shadow)">
-                    <rect x={96} y={72} width={312} height={240} rx={6} fill="#0e0e16" stroke="#2e2e3a" strokeWidth={1} />
-                    <text x={120} y={108} fill="#9a9aaa" fontSize={15} fontFamily="system-ui">Login Form</text>
-                    <rect x={120} y={120} width={264} height={36} rx={4} fill="#12121a" stroke="#252535" />
-                    <text x={136} y={144} fill="#5a5a6a" fontSize={12} fontFamily="system-ui">Email</text>
-                    <rect x={120} y={168} width={264} height={36} rx={4} fill="#12121a" stroke="#252535" />
-                    <text x={136} y={192} fill="#5a5a6a" fontSize={12} fontFamily="system-ui">Password</text>
-                    <rect x={120} y={216} width={264} height={36} rx={4} fill="#1a1a40" stroke="#2a2a5a" />
-                    <text x={252} y={240} fill="#aaaace" fontSize={12} fontFamily="system-ui" textAnchor="middle">Sign In</text>
-                </g>
-
-                <g filter="url(#drop-shadow)">
-                    <rect x={456} y={72} width={264} height={288} rx={6} fill="#0e0e16" stroke="#2e2e3a" strokeWidth={1} />
-                    <text x={480} y={108} fill="#9a9aaa" fontSize={15} fontFamily="system-ui">Sidebar</text>
-                    <rect x={480} y={120} width={216} height={36} rx={4} fill="#12121a" stroke="#252535" />
-                    <rect x={480} y={168} width={216} height={36} rx={4} fill="#12121a" stroke="#252535" />
-                    <rect x={480} y={216} width={216} height={36} rx={4} fill="#12121a" stroke="#252535" />
-                    <rect x={480} y={264} width={216} height={36} rx={4} fill="#12121a" stroke="#252535" />
-                </g>
-
-                <g filter="url(#drop-shadow)">
-                    <rect x={96} y={384} width={624} height={48} rx={6} fill="#0e0e16" stroke="#2e2e3a" strokeWidth={1} />
-                    <text x={408} y={414} fill="#9a9aaa" fontSize={13} fontFamily="system-ui" textAnchor="middle">Navigation Bar</text>
-                </g>
+                {elements.map((element) => (
+                    <g key={element.id} filter="url(#drop-shadow)">
+                        <WireframeElementView element={element} />
+                    </g>
+                ))}
             </g>
         </svg>
     )
