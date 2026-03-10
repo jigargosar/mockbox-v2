@@ -6,6 +6,7 @@ type ElementId = string
 
 type ElementBase = {
     readonly id: ElementId
+    readonly seed: number
     readonly x: number
     readonly y: number
     readonly width: number
@@ -44,19 +45,19 @@ type ElementsActions = {
 }
 
 const SEED_ELEMENTS: ReadonlyArray<WireframeElement> = [
-    { id: '1', type: 'container', x: 96, y: 72, width: 312, height: 240, label: 'Login Form' },
-    { id: '2', type: 'rectangle', x: 120, y: 120, width: 264, height: 36 },
-    { id: '3', type: 'text', x: 136, y: 128, width: 100, height: 20, content: 'Email' },
-    { id: '4', type: 'rectangle', x: 120, y: 168, width: 264, height: 36 },
-    { id: '5', type: 'text', x: 136, y: 176, width: 100, height: 20, content: 'Password' },
-    { id: '6', type: 'rectangle', x: 120, y: 216, width: 264, height: 36 },
-    { id: '7', type: 'text', x: 252, y: 224, width: 60, height: 20, content: 'Sign In' },
-    { id: '8', type: 'container', x: 456, y: 72, width: 264, height: 288, label: 'Sidebar' },
-    { id: '9', type: 'rectangle', x: 480, y: 120, width: 216, height: 36 },
-    { id: '10', type: 'rectangle', x: 480, y: 168, width: 216, height: 36 },
-    { id: '11', type: 'rectangle', x: 480, y: 216, width: 216, height: 36 },
-    { id: '12', type: 'rectangle', x: 480, y: 264, width: 216, height: 36 },
-    { id: '13', type: 'container', x: 96, y: 384, width: 624, height: 48, label: 'Navigation Bar' },
+    { id: '1', seed: 101, type: 'container', x: 96, y: 72, width: 312, height: 240, label: 'Login Form' },
+    { id: '2', seed: 202, type: 'rectangle', x: 120, y: 120, width: 264, height: 36 },
+    { id: '3', seed: 303, type: 'text', x: 136, y: 128, width: 100, height: 20, content: 'Email' },
+    { id: '4', seed: 404, type: 'rectangle', x: 120, y: 168, width: 264, height: 36 },
+    { id: '5', seed: 505, type: 'text', x: 136, y: 176, width: 100, height: 20, content: 'Password' },
+    { id: '6', seed: 606, type: 'rectangle', x: 120, y: 216, width: 264, height: 36 },
+    { id: '7', seed: 707, type: 'text', x: 252, y: 224, width: 60, height: 20, content: 'Sign In' },
+    { id: '8', seed: 808, type: 'container', x: 456, y: 72, width: 264, height: 288, label: 'Sidebar' },
+    { id: '9', seed: 909, type: 'rectangle', x: 480, y: 120, width: 216, height: 36 },
+    { id: '10', seed: 1010, type: 'rectangle', x: 480, y: 168, width: 216, height: 36 },
+    { id: '11', seed: 1111, type: 'rectangle', x: 480, y: 216, width: 216, height: 36 },
+    { id: '12', seed: 1212, type: 'rectangle', x: 480, y: 264, width: 216, height: 36 },
+    { id: '13', seed: 1313, type: 'container', x: 96, y: 384, width: 624, height: 48, label: 'Navigation Bar' },
 ]
 
 export const useElementsStore = create<ElementsState & ElementsActions>((set) => ({

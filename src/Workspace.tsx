@@ -157,6 +157,7 @@ export function Workspace() {
                 {elements.map((element) => (
                     <g
                         key={element.id}
+                        transform={`translate(${element.x}, ${element.y})`}
                         filter="url(#drop-shadow)"
                         onPointerDown={(e) => handleElementPointerDown(e, element.id)}
                         style={{ cursor: 'move' }}
