@@ -13,6 +13,7 @@ function toSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number) {
 
 function useApp() {
     const svgRef = useRef<SVGSVGElement>(null)
+    const contentRef = useRef<SVGGElement>(null)
     const [viewBox, setViewBox] = useState<ViewBox>({
         x: 0, y: 0, width: window.innerWidth, height: window.innerHeight,
     })
@@ -75,13 +76,9 @@ function useApp() {
         return () => svg.removeEventListener('wheel', handleWheel)
     }, [])
 
-    const resetZoom = () => setViewBox({
-        x: 0, y: 0, width: window.innerWidth, height: window.innerHeight,
-    })
-
     const fitToContent = () => {
-        if (!svgRef.current) return
-        const bbox = svgRef.current.getBBox()
+        if (!contentRef.current) return
+        const bbox = contentRef.current.getBBox()
         const padding = 40
         const aspect = window.innerWidth / window.innerHeight
         let fitWidth = bbox.width + padding * 2
@@ -99,11 +96,11 @@ function useApp() {
         })
     }
 
-    return { svgRef, viewBox, onPointerDown, onPointerMove, onPointerUp, resetZoom, fitToContent }
+    return { svgRef, contentRef, viewBox, onPointerDown, onPointerMove, onPointerUp, fitToContent }
 }
 
 export function App() {
-    const { svgRef, viewBox, onPointerDown, onPointerMove, onPointerUp, resetZoom, fitToContent } = useApp()
+    const { svgRef, contentRef, viewBox, onPointerDown, onPointerMove, onPointerUp, fitToContent } = useApp()
     const { x, y, width, height } = viewBox
 
     const buttonClass = 'px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded hover:bg-gray-700'
@@ -111,7 +108,6 @@ export function App() {
     return (
         <div className="relative h-screen w-screen overflow-hidden">
         <div className="absolute top-4 right-4 z-10 flex gap-2">
-            <button onClick={resetZoom} className={buttonClass}>Reset</button>
             <button onClick={fitToContent} className={buttonClass}>Fit</button>
         </div>
         <svg
@@ -129,7 +125,9 @@ export function App() {
                 </pattern>
             </defs>
             <rect x={x} y={y} width={width} height={height} fill="url(#dot-grid)" />
-            <rect x={100} y={100} width={200} height={150} fill="none" stroke="white" strokeWidth={2} />
+            <g ref={contentRef}>
+                <rect x={100} y={100} width={200} height={150} fill="none" stroke="white" strokeWidth={2} />
+            </g>
         </svg>
         </div>
     )
