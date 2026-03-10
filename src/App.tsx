@@ -1,3 +1,5 @@
+import { Workspace } from './Workspace'
+
 export function App() {
-    return <div>Hello</div>
+    return <Workspace />
 }
