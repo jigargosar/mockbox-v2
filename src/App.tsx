@@ -1,4 +1,4 @@
-import { type PointerEvent, type WheelEvent, useCallback, useRef, useState } from 'react'
+import { type PointerEvent, type WheelEvent, useRef, useState } from 'react'
 
 type ViewBox = { x: number; y: number; width: number; height: number }
 
@@ -14,29 +14,27 @@ function useApp() {
     const [viewBox, setViewBox] = useState<ViewBox>({
         x: 0, y: 0, width: window.innerWidth, height: window.innerHeight,
     })
-    const dragStart = useRef<{ x: number; y: number } | null>(null)
+    const dragOrigin = useRef<{ x: number; y: number } | null>(null)
 
-    const onPointerDown = useCallback((e: PointerEvent) => {
+    const onPointerDown = (e: PointerEvent<SVGSVGElement>) => {
         if (e.button !== 0 || !svgRef.current) return
         const pt = toSvgPoint(svgRef.current, e.clientX, e.clientY)
-        dragStart.current = { x: pt.x, y: pt.y }
-    }, [])
+        dragOrigin.current = { x: pt.x, y: pt.y }
+    }
 
-    const onPointerMove = useCallback((e: PointerEvent) => {
-        if (!dragStart.current || !svgRef.current) return
+    const onPointerMove = (e: PointerEvent<SVGSVGElement>) => {
+        if (!dragOrigin.current || !svgRef.current) return
         const pt = toSvgPoint(svgRef.current, e.clientX, e.clientY)
         setViewBox(vb => ({
             ...vb,
-            x: vb.x - (pt.x - dragStart.current!.x),
-            y: vb.y - (pt.y - dragStart.current!.y),
+            x: vb.x - (pt.x - dragOrigin.current!.x),
+            y: vb.y - (pt.y - dragOrigin.current!.y),
         }))
-    }, [])
+    }
 
-    const onPointerUp = useCallback(() => {
-        dragStart.current = null
-    }, [])
+    const onPointerUp = () => { dragOrigin.current = null }
 
-    const onWheel = useCallback((e: WheelEvent) => {
+    const onWheel = (e: WheelEvent<SVGSVGElement>) => {
         if (!svgRef.current) return
         if (e.ctrlKey) {
             const scaleFactor = e.deltaY > 0 ? 1.1 : 0.9
@@ -55,7 +53,7 @@ function useApp() {
                 y: vb.y + e.deltaY * scale,
             }))
         }
-    }, [viewBox.width])
+    }
 
     return { svgRef, viewBox, onPointerDown, onPointerMove, onPointerUp, onWheel }
 }
