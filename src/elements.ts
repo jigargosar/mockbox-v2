@@ -34,7 +34,7 @@ function applyMove(
 
 type ElementsState = {
     readonly elements: ReadonlyArray<WireframeElement>
-    readonly selectedId: ElementId | null
+    readonly selectedIds: ReadonlyArray<ElementId>
 }
 
 type ElementsActions = {
@@ -61,9 +61,9 @@ const SEED_ELEMENTS: ReadonlyArray<WireframeElement> = [
 
 export const useElementsStore = create<ElementsState & ElementsActions>((set) => ({
     elements: SEED_ELEMENTS,
-    selectedId: null,
+    selectedIds: [],
 
-    select: (id) => set({ selectedId: id }),
-    deselect: () => set({ selectedId: null }),
+    select: (id) => set({ selectedIds: [id] }),
+    deselect: () => set({ selectedIds: [] }),
     moveElement: (id, dx, dy) => set((s) => ({ elements: applyMove(s.elements, id, dx, dy) })),
 }))

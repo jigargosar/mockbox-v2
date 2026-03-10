@@ -22,7 +22,7 @@ export function Workspace() {
     const { pan, zoomAt, setViewport } = useCameraStore()
     const cameraTransform = useCameraStore(selectCameraTransform)
     const zoom = useCameraStore(selectZoom)
-    const { elements, selectedId, select, deselect, moveElement } = useElementsStore()
+    const { elements, selectedIds, select, deselect, moveElement } = useElementsStore()
 
     // Track viewport dimensions on mount + resize
     useEffect(() => {
@@ -165,10 +165,9 @@ export function Workspace() {
                     </g>
                 ))}
 
-                {selectedId &&
-                    elements
-                        .filter((el) => el.id === selectedId)
-                        .map((el) => <SelectionOutline key={`sel-${el.id}`} element={el} />)}
+                {elements
+                    .filter((el) => selectedIds.includes(el.id))
+                    .map((el) => <SelectionOutline key={`sel-${el.id}`} element={el} />)}
             </g>
         </svg>
     )
