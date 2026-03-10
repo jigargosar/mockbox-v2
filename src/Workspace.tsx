@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useCameraStore } from './camera'
+import { selectCameraTransform, useCameraStore } from './camera'
 
 const GRID_SIZE = 24
 const DOT_RADIUS = 0.8
@@ -10,7 +10,8 @@ export function Workspace() {
     const isPanning = useRef(false)
     const isSpaceHeld = useRef(false)
 
-    const { offsetX, offsetY, zoom, pan, zoomAt, setViewport } = useCameraStore()
+    const { pan, zoomAt, setViewport } = useCameraStore()
+    const cameraTransform = useCameraStore(selectCameraTransform)
 
     // Track viewport dimensions on mount + resize
     useEffect(() => {
@@ -102,7 +103,7 @@ export function Workspace() {
                     width={GRID_SIZE}
                     height={GRID_SIZE}
                     patternUnits="userSpaceOnUse"
-                    patternTransform={`translate(${offsetX}, ${offsetY}) scale(${zoom})`}
+                    patternTransform={cameraTransform}
                 >
                     <circle
                         cx={GRID_SIZE / 2}
@@ -119,7 +120,7 @@ export function Workspace() {
             <rect width="100%" height="100%" fill="url(#vignette)" />
             <rect width="100%" height="100%" fill="url(#dot-grid)" />
 
-            <g transform={`translate(${offsetX}, ${offsetY}) scale(${zoom})`}>
+            <g transform={cameraTransform}>
                 {/* origin crosshair */}
                 <line x1={-40} y1={0} x2={40} y2={0} stroke="#2a2a3a" strokeWidth={0.5} />
                 <line x1={0} y1={-40} x2={0} y2={40} stroke="#2a2a3a" strokeWidth={0.5} />

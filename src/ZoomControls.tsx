@@ -1,8 +1,8 @@
-import { useCameraStore } from './camera'
+import { selectZoomPercent, useCameraStore } from './camera'
 
 export function ZoomControls() {
-    const { zoom, zoomIn, zoomOut, reset } = useCameraStore()
-    const zoomPercent = Math.round(zoom * 100)
+    const { zoomIn, zoomOut, reset } = useCameraStore()
+    const zoomPercent = useCameraStore(selectZoomPercent)
 
     return (
         <div className="fixed right-4 bottom-4 flex items-center gap-0.5 rounded-xl border border-white/[0.06] bg-white/[0.03] px-1 py-1 backdrop-blur-xl">
