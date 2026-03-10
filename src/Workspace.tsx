@@ -10,28 +10,36 @@ export function Workspace() {
     const isPanning = useRef(false)
     const isSpaceHeld = useRef(false)
 
-    const { offsetX, offsetY, zoom } = useCameraStore()
+    const { offsetX, offsetY, zoom, pan, zoomAt, setViewport } = useCameraStore()
+
+    // Track viewport dimensions on mount + resize
+    useEffect(() => {
+        const update = () => setViewport({ width: window.innerWidth, height: window.innerHeight })
+        update()
+        window.addEventListener('resize', update)
+        return () => window.removeEventListener('resize', update)
+    }, [setViewport])
 
     // Native wheel listener — passive: false required for preventDefault
+    // Actions are stable references from zustand, safe as deps
     useEffect(() => {
         const svg = svgRef.current
         if (!svg) return
 
         const onWheel = (e: WheelEvent) => {
             e.preventDefault()
-            const state = useCameraStore.getState()
             if (e.ctrlKey) {
                 // Trackpad pinch — amplify small deltaY
-                state.zoomAt(e.clientX, e.clientY, e.deltaY * 3)
+                zoomAt(e.clientX, e.clientY, e.deltaY * 3)
             } else {
                 // Two-finger swipe or mouse wheel — pan
-                state.pan(-e.deltaX, -e.deltaY)
+                pan(-e.deltaX, -e.deltaY)
             }
         }
 
         svg.addEventListener('wheel', onWheel, { passive: false })
         return () => svg.removeEventListener('wheel', onWheel)
-    }, [])
+    }, [pan, zoomAt])
 
     // Space key tracking for space+drag panning
     useEffect(() => {
@@ -67,7 +75,7 @@ export function Workspace() {
 
     const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
         if (!isPanning.current) return
-        useCameraStore.getState().pan(e.movementX, e.movementY)
+        pan(e.movementX, e.movementY)
     }
 
     const handlePointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
