@@ -3,6 +3,7 @@ import { create } from 'zustand'
 const MIN_ZOOM = 0.25
 const MAX_ZOOM = 3.0
 const ZOOM_SPEED = 0.001
+const ZOOM_STEP = 200
 
 type CameraState = {
     readonly offsetX: number
@@ -13,6 +14,8 @@ type CameraState = {
 type CameraActions = {
     readonly pan: (dx: number, dy: number) => void
     readonly zoomAt: (cursorX: number, cursorY: number, delta: number) => void
+    readonly zoomIn: () => void
+    readonly zoomOut: () => void
     readonly reset: () => void
 }
 
@@ -38,6 +41,18 @@ export const useCameraStore = create<CameraState & CameraActions>((set) => ({
                 offsetY: cursorY - (cursorY - s.offsetY) * ratio,
             }
         }),
+
+    zoomIn: () => {
+        const cx = window.innerWidth / 2
+        const cy = window.innerHeight / 2
+        useCameraStore.getState().zoomAt(cx, cy, -ZOOM_STEP)
+    },
+
+    zoomOut: () => {
+        const cx = window.innerWidth / 2
+        const cy = window.innerHeight / 2
+        useCameraStore.getState().zoomAt(cx, cy, ZOOM_STEP)
+    },
 
     reset: () => set(INITIAL),
 }))
