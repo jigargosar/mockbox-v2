@@ -18,7 +18,6 @@ const IDLE: InteractionMode = { type: 'idle' }
 export function Workspace() {
     const svgRef = useRef<SVGSVGElement>(null)
     const mode = useRef<InteractionMode>(IDLE)
-    const isSpaceHeld = useRef(false)
 
     const { pan, zoomAt, setViewport, offsetX, offsetY } = useCameraStore()
     const cameraTransform = useCameraStore(selectCameraTransform)
@@ -54,28 +53,6 @@ export function Workspace() {
         svg.addEventListener('wheel', onWheel, { passive: false })
         return () => svg.removeEventListener('wheel', onWheel)
     }, [pan, zoomAt])
-
-    // Space key tracking for space+drag panning
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.code === 'Space' && !e.repeat) {
-                e.preventDefault()
-                isSpaceHeld.current = true
-            }
-        }
-        const onKeyUp = (e: KeyboardEvent) => {
-            if (e.code === 'Space') {
-                isSpaceHeld.current = false
-            }
-        }
-
-        window.addEventListener('keydown', onKeyDown)
-        window.addEventListener('keyup', onKeyUp)
-        return () => {
-            window.removeEventListener('keydown', onKeyDown)
-            window.removeEventListener('keyup', onKeyUp)
-        }
-    }, [])
 
     // Canvas-level pointerdown — tool action or pan (only fires if no element caught it)
     const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
