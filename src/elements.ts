@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { newSeed } from './roughPaths'
 
 // Domain types
 
@@ -19,6 +20,20 @@ export type LineElement = ElementBase & { readonly type: 'line' }
 export type ContainerElement = ElementBase & { readonly type: 'container'; readonly label: string }
 
 export type WireframeElement = RectangleElement | TextElement | LineElement | ContainerElement
+
+// Element factories
+
+export function createRectangle(x: number, y: number): RectangleElement {
+    return {
+        id: crypto.randomUUID(),
+        seed: newSeed(),
+        type: 'rectangle',
+        x: x - 100,
+        y: y - 50,
+        width: 200,
+        height: 100,
+    }
+}
 
 // Pure state transitions
 
@@ -42,6 +57,7 @@ type ElementsActions = {
     readonly select: (id: ElementId) => void
     readonly deselect: () => void
     readonly moveElement: (id: ElementId, dx: number, dy: number) => void
+    readonly addElement: (element: WireframeElement) => void
 }
 
 const SEED_ELEMENTS: ReadonlyArray<WireframeElement> = [
@@ -67,4 +83,5 @@ export const useElementsStore = create<ElementsState & ElementsActions>((set) =>
     select: (id) => set({ selectedIds: [id] }),
     deselect: () => set({ selectedIds: [] }),
     moveElement: (id, dx, dy) => set((s) => ({ elements: applyMove(s.elements, id, dx, dy) })),
+    addElement: (element) => set((s) => ({ elements: [...s.elements, element], selectedIds: [element.id] })),
 }))

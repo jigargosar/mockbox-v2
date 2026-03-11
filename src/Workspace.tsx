@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { selectCameraTransform, selectZoom, useCameraStore } from './camera'
-import { useElementsStore } from './elements'
+import { createRectangle, useElementsStore } from './elements'
+import { useToolsStore } from './tools'
 import { SelectionOutline, WireframeElementView } from './WireframeElement'
 
 const GRID_SIZE = 24
@@ -19,10 +20,11 @@ export function Workspace() {
     const mode = useRef<InteractionMode>(IDLE)
     const isSpaceHeld = useRef(false)
 
-    const { pan, zoomAt, setViewport } = useCameraStore()
+    const { pan, zoomAt, setViewport, offsetX, offsetY } = useCameraStore()
     const cameraTransform = useCameraStore(selectCameraTransform)
     const zoom = useCameraStore(selectZoom)
-    const { elements, selectedIds, select, deselect, moveElement } = useElementsStore()
+    const { elements, selectedIds, select, deselect, moveElement, addElement } = useElementsStore()
+    const activeTool = useToolsStore((s) => s.activeTool)
 
     // Track viewport dimensions on mount + resize
     useEffect(() => {
@@ -75,12 +77,18 @@ export function Workspace() {
         }
     }, [])
 
-    // Canvas-level pointerdown — deselect + pan (only fires if no element caught it)
+    // Canvas-level pointerdown — tool action or pan (only fires if no element caught it)
     const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-        const shouldPan = e.button === 1 || e.button === 0
-        if (!shouldPan) return
-
+        if (e.button !== 0 && e.button !== 1) return
         e.preventDefault()
+
+        if (e.button === 0 && activeTool === 'rectangle') {
+            const canvasX = (e.clientX - offsetX) / zoom
+            const canvasY = (e.clientY - offsetY) / zoom
+            addElement(createRectangle(canvasX, canvasY))
+            return
+        }
+
         deselect()
         mode.current = { type: 'panning' }
         svgRef.current?.setPointerCapture(e.pointerId)
