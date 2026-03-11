@@ -15,14 +15,13 @@ type InteractionMode =
 
 const IDLE: InteractionMode = { type: 'idle' }
 
-export function Workspace() {
+function useCanvasInteraction() {
     const svgRef = useRef<SVGSVGElement>(null)
     const mode = useRef<InteractionMode>(IDLE)
 
     const { pan, zoomAt, setViewport, offsetX, offsetY } = useCameraStore()
-    const cameraTransform = useCameraStore(selectCameraTransform)
     const zoom = useCameraStore(selectZoom)
-    const { elements, selectedIds, select, deselect, moveElement, addElement } = useElementsStore()
+    const { select, deselect, moveElement, addElement } = useElementsStore()
     const activeTool = useToolsStore((s) => s.activeTool)
 
     // Track viewport dimensions on mount + resize
@@ -99,14 +98,25 @@ export function Workspace() {
         mode.current = IDLE
     }
 
+    return {
+        svgRef,
+        svgProps: {
+            onPointerDown: handleCanvasPointerDown,
+            onPointerMove: handlePointerMove,
+            onPointerUp: handlePointerUp,
+        },
+        handleElementPointerDown,
+    }
+}
+
+export function Workspace() {
+    const { svgRef, svgProps, handleElementPointerDown } = useCanvasInteraction()
+
+    const cameraTransform = useCameraStore(selectCameraTransform)
+    const { elements, selectedIds } = useElementsStore()
+
     return (
-        <svg
-            ref={svgRef}
-            className="h-full w-full"
-            onPointerDown={handleCanvasPointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-        >
+        <svg ref={svgRef} className="h-full w-full" {...svgProps}>
             <defs>
                 <radialGradient id="vignette">
                     <stop offset="0%" stopColor="#13131c" />
