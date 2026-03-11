@@ -107,7 +107,32 @@ export function Workspace() {
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
         >
-            <CanvasBackground cameraTransform={cameraTransform} />
+            <defs>
+                <radialGradient id="vignette">
+                    <stop offset="0%" stopColor="#13131c" />
+                    <stop offset="100%" stopColor="#06060a" />
+                </radialGradient>
+                <pattern
+                    id="dot-grid"
+                    width={GRID_SIZE}
+                    height={GRID_SIZE}
+                    patternUnits="userSpaceOnUse"
+                    patternTransform={cameraTransform}
+                >
+                    <circle
+                        cx={GRID_SIZE / 2}
+                        cy={GRID_SIZE / 2}
+                        r={DOT_RADIUS}
+                        fill={DOT_COLOR}
+                    />
+                </pattern>
+                <filter id="drop-shadow">
+                    <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000" floodOpacity="0.4" />
+                </filter>
+            </defs>
+
+            <rect width="100%" height="100%" fill="url(#vignette)" />
+            <rect width="100%" height="100%" fill="url(#dot-grid)" />
 
             <g transform={cameraTransform}>
                 {/* origin crosshair */}
@@ -131,37 +156,5 @@ export function Workspace() {
                     .map((el) => <SelectionOutline key={`sel-${el.id}`} element={el} />)}
             </g>
         </svg>
-    )
-}
-
-function CanvasBackground(props: { readonly cameraTransform: string }) {
-    return (
-        <>
-            <defs>
-                <radialGradient id="vignette">
-                    <stop offset="0%" stopColor="#13131c" />
-                    <stop offset="100%" stopColor="#06060a" />
-                </radialGradient>
-                <pattern
-                    id="dot-grid"
-                    width={GRID_SIZE}
-                    height={GRID_SIZE}
-                    patternUnits="userSpaceOnUse"
-                    patternTransform={props.cameraTransform}
-                >
-                    <circle
-                        cx={GRID_SIZE / 2}
-                        cy={GRID_SIZE / 2}
-                        r={DOT_RADIUS}
-                        fill={DOT_COLOR}
-                    />
-                </pattern>
-                <filter id="drop-shadow">
-                    <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000" floodOpacity="0.4" />
-                </filter>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#vignette)" />
-            <rect width="100%" height="100%" fill="url(#dot-grid)" />
-        </>
     )
 }
