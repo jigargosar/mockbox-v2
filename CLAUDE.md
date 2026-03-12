@@ -25,7 +25,7 @@ Text uses `<text>` elements with handwriting font. HTML overlay planned for edit
 
 ### State management
 
-Two independent zustand stores following the same pattern — pure state transition functions outside the store, thin action wrappers inside, selectors for derived values:
+Three independent zustand stores following the same pattern — pure state transition functions outside the store, thin action wrappers inside, selectors for derived values:
 
 1. `camera.ts` — pan/zoom/viewport (zoom clamped 25%-300%, exponential scaling)
    - Pure functions: `applyPan`, `applyZoomAt`
@@ -37,6 +37,8 @@ Two independent zustand stores following the same pattern — pure state transit
    - Pure function: `applyMove`
    - Element types: `rectangle | text | line | container` (discriminated union)
 
+3. `tools.ts` — active tool selection (`select | rectangle`)
+
 ### Zustand conventions
 
 - Never call `.getState()` from outside the store
@@ -46,7 +48,7 @@ Two independent zustand stores following the same pattern — pure state transit
 
 ### Interaction flow (Workspace.tsx)
 
-All pointer/keyboard interaction lives in `Workspace.tsx`. Uses `InteractionMode` discriminated union (`idle | panning | moving`) tracked via ref. Element `<g>` handlers call `stopPropagation` to distinguish element clicks from canvas clicks. Pointer capture for smooth drags. Screen-to-canvas delta conversion: `movementX / zoom`.
+`useCanvasInteraction` hook (in `Workspace.tsx`) owns all pointer/keyboard interaction. Uses `InteractionMode` discriminated union (`idle | panning | moving`) tracked via ref. Element `<g>` handlers call `stopPropagation` to distinguish element clicks from canvas clicks. Pointer capture for smooth drags. Screen-to-canvas delta conversion: `movementX / zoom`. Canvas pointerdown checks `activeTool` from tools store — rectangle tool places at click position, select tool starts pan/select.
 
 ### Key conventions
 
