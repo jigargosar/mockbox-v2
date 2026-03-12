@@ -52,10 +52,12 @@ Three independent zustand stores following the same pattern — pure state trans
 
 ### Key conventions
 
+- Declare types as `Readonly<{...}>`, not per-field `readonly` (existing code uses per-field — migrate when touched)
 - Each element stores a `seed` (number) for deterministic rough.js rendering
 - `roughPaths.ts` generates shapes at origin — `roughRectangle(seed, width, height, options)`
 - `assertNever()` in `utils.ts` for exhaustive switches on element type union
 - All element types share: `id, seed, x, y, width, height`
+- New element types get a factory function (e.g. `createRectangle`) that generates `id` via `crypto.randomUUID()` and `seed` via `newSeed()`
 
 ### Formatting
 
